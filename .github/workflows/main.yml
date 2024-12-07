@@ -1,0 +1,32 @@
+name: CI pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'Selenium_Automation_Framework'
+
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout branch
+      uses: actions/checkout@v3
+
+    - name: Set up java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+
+    - name: Install dependencies
+      uses: mvn clean install
+
+    - name: Run Tests
+      uses: mvn clean test
+
+
