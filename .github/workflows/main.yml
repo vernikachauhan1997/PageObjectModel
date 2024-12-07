@@ -1,31 +1,53 @@
-name: CI Pipeline
+name: CI pipeline
 
 on:
   push:
     branches:
-      - main
+      - 'main'
+
   pull_request:
     branches:
-      - main
+      - 'main'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: checkout branch
       uses: actions/checkout@v3
 
-    - name: Set Up Java
+    - name: Set up java
       uses: actions/setup-java@v3
       with:
         java-version: '11'
         distribution: 'temurin'
+        cache: maven
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: |
-        mvn clean install
+        mvn clean Install
 
     - name: Run Tests
       run: |
-        mvn test
+       mvn test
+
+    - name: Notify via email on success
+      if: success()
+      run: |
+        echo "Subject: CI Pipeline Successful!" > message.txt
+        sendmail -S ${{ secrets.SMTP_SERVER }}:${{ secrets.SMTP_PORT }} \
+                 -f ${{ secrets.EMAIL_ADDRESS }} \
+                 -xu ${{ secrets.EMAIL_ADDRESS }} \
+                 vernikachauhan1997@gmail.com < message.txt 
+
+    - name: Notify via Email on Failure
+      if: failure()
+      run: |
+        echo "Subject: CI Pipeline Failed!" > message.txt
+        sendmail -S ${{ secrets.SMTP_SERVER }}:${{ secrets.SMTP_PORT }} \
+                 -f ${{ secrets.EMAIL_ADDRESS }} \
+                 -xu ${{ secrets.EMAIL_ADDRESS }} \
+                 vernikachauhan1997@gmail.com < message.txt
+
+
